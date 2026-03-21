@@ -1,0 +1,128 @@
+# Netlify configuration file for Chula English OPH website
+# This enables proper caching headers and security headers
+
+# Build configuration
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "functions"
+
+# Production environment variables
+[context.production.environment]
+  VITE_PORTFOLIO_LINK = "https://drive.google.com/drive/folders/10KSk8LbTmCpnJA-m-Utv8xiW7MSGnLRN?usp=sharing"
+  VITE_INSTAGRAM_LINK = "https://www.instagram.com/oph.cu.edueng?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+
+# Cache headers for static images (1 year)
+[[headers]]
+  for = "/(logo|inforgraphic)\\.(png|webp)$"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
+
+# Cache headers for JavaScript bundles (1 year - Vite includes hash in filename)
+[[headers]]
+  for = "/assets/*.js$"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "text/javascript; charset=utf-8"
+
+# Cache headers for CSS bundles (1 year - Vite includes hash in filename)
+[[headers]]
+  for = "/assets/*.css$"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "text/css; charset=utf-8"
+
+# Cache headers for PDFs (7 days - may be updated)
+[[headers]]
+  for = "/**/*.pdf$"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+    Content-Disposition = "attachment"
+
+# No cache for HTML (always check for latest)
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Content-Type = "text/html; charset=utf-8"
+
+# No cache for service worker
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Content-Type = "text/javascript; charset=utf-8"
+
+# Security headers for all requests
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Content-Security-Policy - Balanced for Framer Motion + Security
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https: wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    # HSTS - Enforce HTTPS (6 months, includes subdomains, preload)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Prevent clickjacking
+    X-Frame-Options = "DENY"
+    # Prevent MIME type sniffing
+    X-Content-Type-Options = "nosniff"
+    # Enable XSS protection in older browsers
+    X-XSS-Protection = "1; mode=block"
+    # Control referrer information
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Restrict permissions
+    Permissions-Policy = "geolocation=(), microphone=(), camera=(), accelerometer=(), gyroscope=(), magnetometer=()"
+    # Allow cross-origin policies
+    Cross-Origin-Embedder-Policy = "require-corp"
+    Cross-Origin-Opener-Policy = "same-origin"
+    # Additional XSS protection
+    X-Permitted-Cross-Domain-Policies = "none"
+    # Enable compression
+    X-Compress = "gzip"
+    # Remove server signature
+    Server = ""
+
+# Redirect www to non-www
+[[redirects]]
+  from = "https://www.oph.cu.edueng/*"
+  to = "https://oph.cu.edueng/:splat"
+  status = 301
+  force = true
+
+# Redirect old paths if needed
+[[redirects]]
+  from = "/criteria"
+  to = "/#criteria"
+  status = 301
+
+[[redirects]]
+  from = "/portfolio"
+  to = "/#portfolio"
+  status = 301
+
+# 404 page fallback
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# Rewrite requests for SPA (all routes go to index.html)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# DEV and STAGING environment overrides
+[context.staging.environment]
+  VITE_PORTFOLIO_LINK = "https://drive.google.com/drive/folders/10KSk8LbTmCpnJA-m-Utv8xiW7MSGnLRN?usp=sharing"
+  VITE_INSTAGRAM_LINK = "https://www.instagram.com/oph.cu.edueng?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+
+[context.staging]
+  # Preview deploys get lower cache
+  command = "npm run build"
+
+# Branch-specific configuration
+[context.deploy-preview]
+  # Deploy previews disable caching for testing
+  command = "npm run build"
+
