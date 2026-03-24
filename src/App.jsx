@@ -346,7 +346,7 @@ export default function App() {
 
           {/* Footer Text */}
           <p className="text-xs text-primary/50 mt-6">
-            เอกอังกฤษ จุฬาลงกรณ์มหาวิทยาลัย | Open House 2026
+            ครุศาสตร์ เอกอังกฤษ จุฬาลงกรณ์มหาวิทยาลัย | EDU Chula Open House 2026
           </p>
         </motion.div>
       </motion.div>
